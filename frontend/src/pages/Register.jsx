@@ -38,7 +38,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://travel-planner-58kd.onrender.com/api/users/register/", {
+      const res = await fetch("https://travel-planner-nziu.onrender.com/api/users/register/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
