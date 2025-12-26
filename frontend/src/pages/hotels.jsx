@@ -7,12 +7,12 @@ export default function Hotels() {
   const [message, setMessage] = useState("");
 
   const loadHotels = async () => {
-    const res = await axios.get("http://127.0.0.1:8000/api/hotels/list/");
+    const res = await axios.get("https://travel-planner-58kd.onrender.com/api/hotels/list/");
     setHotels(res.data.hotels);
   };
 
   const bookRoom = async (hotel, room) => {
-    const res = await axios.post("http://127.0.0.1:8000/api/hotels/book/", {
+    const res = await axios.post("https://travel-planner-58kd.onrender.com/api/hotels/book/", {
       hotel_name: hotel.name,
       room_type: room.type,
       price: room.price,
