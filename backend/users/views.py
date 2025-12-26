@@ -2,11 +2,14 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 from .serializers import RegisterSerializer
 
-User = get_user_model()
 
+@method_decorator(csrf_exempt, name="dispatch")
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
@@ -29,6 +32,7 @@ class RegisterView(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -37,14 +41,18 @@ class LoginView(generics.GenericAPIView):
         password = request.data.get("password")
 
         if not email or not password:
-            return Response({"error": "Please provide both email and password."},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Please provide both email and password."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         user = authenticate(request, email=email, password=password)
 
         if not user:
-            return Response({"error": "Invalid credentials."},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Invalid credentials."},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
         refresh = RefreshToken.for_user(user)
 
