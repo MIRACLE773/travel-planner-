@@ -76,9 +76,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://https://trapla.netlify.app/"
-    "https://travel-planner-nziu.onrender.com",
+    "http://localhost:3000",  # for local dev
+    "https://trapla.netlify.app",  # your live frontend URL
+    "https://travel-planner-nziu.onrender.com",  # your backend URL
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
