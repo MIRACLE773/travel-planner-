@@ -36,7 +36,7 @@ class RegisterView(generics.CreateAPIView):
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         email = request.data.get("username_or_email")
         password = request.data.get("password")
 
@@ -46,7 +46,8 @@ class LoginView(generics.GenericAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        user = authenticate(request, email=email, password=password)
+        # 🔥 FIX: username=email (NOT email=email)
+        user = authenticate(request, username=email, password=password)
 
         if not user:
             return Response(
@@ -64,4 +65,4 @@ class LoginView(generics.GenericAPIView):
             },
             "refresh": str(refresh),
             "access": str(refresh.access_token),
-        })
+        }, status=status.HTTP_200_OK)
