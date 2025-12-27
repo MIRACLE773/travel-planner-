@@ -57,11 +57,18 @@ export default function Register() {
 
       const data = await res.json().catch(() => null);
 
+      
+
       if (!res.ok) {
-        setError(data?.password?.[0] || data?.error || JSON.stringify(data) || "Registration failed");
+        // get first error message if any, else fallback
+        const firstError = Object.values(data)[0];
+        setError(
+          Array.isArray(firstError) ? firstError[0] : firstError || "Registration failed"
+         );
         setLoading(false);
         return;
-      }
+        }
+
 
       localStorage.setItem(
         "currentUser",
