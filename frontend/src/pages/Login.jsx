@@ -14,62 +14,67 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    if (!emailOrName.trim() || !password) {
-      setError("Please provide both username/email and password.");
+    if (!emailOrName || !password) {
+      setError("Please fill all fields.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch("https://travel-planner-nziu.onrender.com/api/users/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username_or_email: emailOrName,
-          password: password,
-        }),
-      });
+      const res = await fetch(
+        "https://travel-planner-nziu.onrender.com/api/users/login/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: emailOrName.trim(),
+            password,
+          }),
+        }
+      );
 
-      const data = await response.json();
+      const text = await res.text();
+      console.log("LOGIN RESPONSE:", text);
 
-      if (!response.ok) {
-        setError(data.error || "Login failed");
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setError("Backend returned invalid response.");
         setLoading(false);
         return;
       }
 
-      // Save tokens and user info in localStorage
-      localStorage.setItem("accessToken", data.access);
-      localStorage.setItem("refreshToken", data.refresh);
+      if (!res.ok) {
+        setError(data?.detail || "Login failed");
+        setLoading(false);
+        return;
+      }
+
       localStorage.setItem(
-  "currentUser",
-  JSON.stringify({
-    id: data.user.id,
-    name: data.user.name,
-    email: data.user.email,
-    token: data.access,
-  })
-);
+        "currentUser",
+        JSON.stringify({
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          token: data.access,
+        })
+      );
 
-
-      setLoading(false);
-      navigate("/view"); // Redirect to your main page
+      navigate("/view");
     } catch (err) {
       console.error(err);
-      setError("Something went wrong. Please try again.");
-      setLoading(false);
+      setError("Server error. Try again.");
     }
+
+    setLoading(false);
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center relative"
-      style={{ backgroundImage: "url('/bg-login.jpg')" }}
-    >
+    <div className="min-h-screen bg-cover bg-center relative">
       <div className="absolute inset-0 bg-black/50"></div>
+
       <div className="relative z-10">
         <Navbar />
 
@@ -81,7 +86,9 @@ export default function Login() {
             <h2 className="text-white text-2xl font-bold mb-4">Sign In</h2>
 
             {error && (
-              <div className="text-red-400 bg-black/20 p-2 rounded mb-4">{error}</div>
+              <div className="text-red-400 bg-black/20 p-2 rounded mb-4">
+                {error}
+              </div>
             )}
 
             <label className="relative block mb-4">
@@ -97,9 +104,9 @@ export default function Login() {
             <label className="relative block mb-6">
               <FaLock className="absolute top-3 left-3 text-gray-300" />
               <input
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="password"
                 placeholder="Password"
                 className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
               />
@@ -108,14 +115,14 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl font-bold"
+              className="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl font-bold disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
 
             <p className="text-gray-300 text-sm mt-4 text-center">
               New to TravelPlanner?{" "}
-              <a className="text-red-400 font-semibold" href="/register">
+              <a href="/register" className="text-red-400 font-semibold">
                 Create account
               </a>
             </p>

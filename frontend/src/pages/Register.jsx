@@ -18,18 +18,21 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    if (!name.trim() || !email.trim() || !password || !confirm) {
+    if (!name || !email || !password || !confirm) {
       setError("Please fill all fields.");
       return;
     }
+
     if (!validEmail(email)) {
       setError("Invalid email.");
       return;
     }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
+
     if (password !== confirm) {
       setError("Passwords do not match.");
       return;
@@ -38,41 +41,56 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://travel-planner-nziu.onrender.com/api/users/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          confirm_password: confirm,
-        }),
-      });
+      const res = await fetch(
+        "https://travel-planner-nziu.onrender.com/api/users/register/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim(),
+            password,
+            confirm_password: confirm,
+          }),
+        }
+      );
 
-      
+      const text = await res.text();
+      console.log("REGISTER RESPONSE:", text);
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.password ? data.password[0] : "Registration failed."); 
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        setError("Backend returned invalid response.");
         setLoading(false);
         return;
       }
 
+      if (!res.ok) {
+        setError(
+          data?.email?.[0] ||
+            data?.password?.[0] ||
+            data?.detail ||
+            "Registration failed"
+        );
+        setLoading(false);
+        return;
+      }
 
-      // save logged user
       localStorage.setItem(
         "currentUser",
         JSON.stringify({
           id: data.user.id,
-          name: data.user.name, 
+          name: data.user.name,
           email: data.user.email,
           token: data.access,
         })
       );
 
-
       navigate("/view");
     } catch (err) {
+      console.error(err);
       setError("Server error. Try again.");
     }
 
@@ -80,11 +98,9 @@ export default function Register() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center relative"
-      style={{ backgroundImage: "url('/bg-register.jpg')" }}
-    >
+    <div className="min-h-screen bg-cover bg-center relative">
       <div className="absolute inset-0 bg-black/50"></div>
+
       <div className="relative z-10">
         <Navbar />
 
@@ -93,9 +109,15 @@ export default function Register() {
             onSubmit={handleRegister}
             className="bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md"
           >
-            <h2 className="text-white text-2xl font-bold mb-4">Create account</h2>
+            <h2 className="text-white text-2xl font-bold mb-4">
+              Create account
+            </h2>
 
-            {error && <div className="text-red-400 bg-black/20 p-2 rounded mb-4">{error}</div>}
+            {error && (
+              <div className="text-red-400 bg-black/20 p-2 rounded mb-4">
+                {error}
+              </div>
+            )}
 
             <label className="relative block mb-4">
               <FaUser className="absolute top-3 left-3 text-gray-300" />
@@ -120,9 +142,9 @@ export default function Register() {
             <label className="relative block mb-4">
               <FaLock className="absolute top-3 left-3 text-gray-300" />
               <input
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="password"
                 placeholder="Password"
                 className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
               />
@@ -131,9 +153,9 @@ export default function Register() {
             <label className="relative block mb-6">
               <FaLock className="absolute top-3 left-3 text-gray-300" />
               <input
+                type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                type="password"
                 placeholder="Confirm password"
                 className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
               />
@@ -149,7 +171,9 @@ export default function Register() {
 
             <p className="text-gray-300 text-sm mt-4 text-center">
               Already have an account?{" "}
-              <Link to="/login" className="text-red-500 font-semibold">Login</Link>
+              <Link to="/login" className="text-red-500 font-semibold">
+                Login
+              </Link>
             </p>
           </form>
         </div>
