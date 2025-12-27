@@ -55,25 +55,10 @@ export default function Register() {
         }
       );
 
-      const text = await res.text();
-      console.log("REGISTER RESPONSE:", text);
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        setError("Backend returned invalid response.");
-        setLoading(false);
-        return;
-      }
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        setError(
-          data?.email?.[0] ||
-            data?.password?.[0] ||
-            data?.detail ||
-            "Registration failed"
-        );
+        setError(data?.password?.[0] || data?.error || JSON.stringify(data) || "Registration failed");
         setLoading(false);
         return;
       }
@@ -98,82 +83,35 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-cover bg-center relative">
+    <div className="min-h-screen bg-cover bg-center relative" style={{ backgroundImage: "url('/bg-register.jpg')" }}>
       <div className="absolute inset-0 bg-black/50"></div>
-
       <div className="relative z-10">
         <Navbar />
-
         <div className="flex justify-center items-center mt-10 px-4">
-          <form
-            onSubmit={handleRegister}
-            className="bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md"
-          >
-            <h2 className="text-white text-2xl font-bold mb-4">
-              Create account
-            </h2>
-
-            {error && (
-              <div className="text-red-400 bg-black/20 p-2 rounded mb-4">
-                {error}
-              </div>
-            )}
-
+          <form onSubmit={handleRegister} className="bg-white/10 backdrop-blur-md p-8 rounded-xl w-full max-w-md">
+            <h2 className="text-white text-2xl font-bold mb-4">Create account</h2>
+            {error && <div className="text-red-400 bg-black/20 p-2 rounded mb-4">{error}</div>}
             <label className="relative block mb-4">
               <FaUser className="absolute top-3 left-3 text-gray-300" />
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Name"
-                className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
-              />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white" />
             </label>
-
             <label className="relative block mb-4">
               <FaEnvelope className="absolute top-3 left-3 text-gray-300" />
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
-              />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white" />
             </label>
-
             <label className="relative block mb-4">
               <FaLock className="absolute top-3 left-3 text-gray-300" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
-              />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white" />
             </label>
-
             <label className="relative block mb-6">
               <FaLock className="absolute top-3 left-3 text-gray-300" />
-              <input
-                type="password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Confirm password"
-                className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white"
-              />
+              <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Confirm password" className="w-full p-3 pl-10 rounded-xl bg-gray-800 text-white" />
             </label>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl font-bold disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-xl font-bold disabled:opacity-50">
               {loading ? "Creating..." : "Create Account"}
             </button>
-
             <p className="text-gray-300 text-sm mt-4 text-center">
-              Already have an account?{" "}
-              <Link to="/login" className="text-red-500 font-semibold">
-                Login
-              </Link>
+              Already have an account? <Link to="/login" className="text-red-500 font-semibold">Login</Link>
             </p>
           </form>
         </div>
